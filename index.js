@@ -1,10 +1,8 @@
 const WebSocket = require("ws");
 const http = require("http");
-
 const TOKEN = process.env.DISCORD_TOKEN;
 const N8N_WEBHOOK = "http://n8n.mobilocdev.com/webhook/discord-reaction";
 const GATEWAY_URL = "wss://gateway.discord.gg/?v=10&encoding=json";
-
 let heartbeatInterval;
 let sequence = null;
 
@@ -38,13 +36,10 @@ function callWebhook(data) {
 
 function connect() {
   const ws = new WebSocket(GATEWAY_URL);
-
   ws.on("open", () => console.log("Conectado ao Gateway Discord"));
-
   ws.on("message", (raw) => {
     const msg = JSON.parse(raw);
     if (msg.s) sequence = msg.s;
-
     switch (msg.op) {
       case 10:
         startHeartbeat(ws, msg.d.heartbeat_interval);
@@ -52,7 +47,7 @@ function connect() {
           op: 2,
           d: {
             token: TOKEN,
-            intents: 1 << 13,
+            intents: (1 << 0) | (1 << 9) | (1 << 13),
             properties: {
               os: "linux",
               browser: "mobibot",
@@ -61,27 +56,23 @@ function connect() {
           }
         });
         break;
-
       case 0:
         if (msg.t === "MESSAGE_REACTION_ADD" && msg.d.emoji?.name === "✅") {
           console.log("Reação ✅ detectada:", msg.d);
           callWebhook(msg.d);
         }
         break;
-
       case 7:
         ws.close();
         connect();
         break;
     }
   });
-
   ws.on("close", () => {
     clearInterval(heartbeatInterval);
     console.log("Desconectado, reconectando em 5s...");
     setTimeout(connect, 5000);
   });
-
   ws.on("error", (e) => console.error("WS error:", e));
 }
 
