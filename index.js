@@ -40,6 +40,7 @@ function connect() {
   ws.on("message", (raw) => {
     const msg = JSON.parse(raw);
     if (msg.s) sequence = msg.s;
+    console.log("Evento recebido:", msg.t, msg.op);
     switch (msg.op) {
       case 10:
         startHeartbeat(ws, msg.d.heartbeat_interval);
