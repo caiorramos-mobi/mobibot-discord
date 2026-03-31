@@ -48,7 +48,7 @@ function connect() {
           op: 2,
           d: {
             token: TOKEN,
-            intents: (1 << 0) | (1 << 9) | (1 << 13),
+            intents: (1 << 0) | (1 << 9) | (1 << 10),
             properties: {
               os: "linux",
               browser: "mobibot",
